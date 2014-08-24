@@ -27,7 +27,7 @@ function time() {
 }
 
 function execute() {
-  console.log(time(), 'Executing command', '...')
+  if (argv.verbose) console.log(time(), 'Executing command', '...')
   exec(argv.cmd, function (err, stdout, stderr) {
     if (err) console.error(err);
     if (stdout) console.log(stdout.replace(/\n$/, ''));
