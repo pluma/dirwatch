@@ -1,0 +1,59 @@
+#! /usr/bin/env node
+"use strict";
+var exec = require('child_process').exec;
+var debounce = require('debounce');
+var chokidar = require('chokidar');
+var yargs = require('yargs')
+.usage('Usage: $0 -c [command] [path...]')
+.example('$0 -c \'npm test\' lib', 'Runs the project\'s tests whenever a file in "lib" changes.')
+.alias('cmd', 'c')
+.describe('cmd', 'The command to execute.')
+.requiresArg('cmd')
+.alias('debounce', 'd')
+.describe('debounce', 'Only execute the command once within this many milliseconds.')
+.requiresArg('debounce')
+.boolean('verbose')
+.alias('verbose', 'v')
+.describe('verbose', 'More output.')
+.help('help')
+.alias('help', 'h')
+.demand('cmd')
+.demand(1)
+.strict();
+var argv = yargs.argv;
+
+function time() {
+  return '[' + new Date().toISOString().split('T')[1].slice(0, -1) + ']';
+}
+
+function execute() {
+  console.log(time(), 'Executing command', '...')
+  exec(argv.cmd, function (err, stdout, stderr) {
+    if (err) console.error(err);
+    if (stdout) console.log(stdout.replace(/\n$/, ''));
+    if (stderr) console.warn(stderr.replace(/\n$/, ''));
+  });
+}
+
+if (argv.debounce) {
+  if (typeof argv.debounce !== 'number') {
+    console.error(yargs.help());
+    console.error('Expected debounce to be a number. Instead received "' + argv.debounce + '".');
+    process.exit();
+  }
+  execute = debounce(execute, argv.debounce);
+}
+
+argv._.forEach(function (target) {
+  if (argv.verbose) console.log(time(), 'Watching', target, '...');
+  chokidar.watch(target, {persistent: true})
+  .on('change', function (filename) {
+    if (argv.verbose) {
+      console.log(time(), 'Change detected in', filename);
+    }
+    execute();
+  })
+  .on('error', function (err) {
+    console.error(err);
+  });
+});
