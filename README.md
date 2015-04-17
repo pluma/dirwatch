@@ -1,5 +1,7 @@
 # Synopsis
 
+**NOTE:** This package is no longer maintained. The [watch](https://www.npmjs.com/package/watch) package is a more supported replacement.
+
 Yet another "run a command when a file changes" script.
 
 [![license - MIT](http://b.repl.ca/v1/license-MIT-blue.png)](http://pluma.mit-license.org) [![Flattr this](https://api.flattr.com/button/flattr-badge-large.png)](https://flattr.com/submit/auto?user_id=pluma&url=https://github.com/pluma/dirwatch)
